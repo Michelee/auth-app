@@ -1,29 +1,20 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow
- */
-
-import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View} from 'react-native';
+import React, { Component } from 'react';
+import { Text, View } from 'react-native';
+import { Header } from './components/common';
 
 class App extends Component {
   render() {
     return (
       <View style={styles.container}>
+        <Header headerText="Header Authentication" />
         <Text style={styles.welcome}>Welcome to React Native!</Text>
       </View>
     );
   }
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#F5FCFF',
   },
   welcome: {
@@ -36,6 +27,6 @@ const styles = StyleSheet.create({
     color: '#333333',
     marginBottom: 5,
   },
-});
+};
 
 export default App;
