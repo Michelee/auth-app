@@ -1,10 +1,16 @@
 import React, { Component } from 'react';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 import firebase from 'firebase';
-import { Header } from './components/common';
+import { Header, Button, Spinner, CardSection } from './components/common';
 import LoginForm from './components/LoginForm';
 
 class App extends Component {
+
+  state = {
+    isLoggedIn: null,
+
+  }
+
   componentWillMount() {
     firebase.initializeApp({
       apiKey: 'AIzaSyB2_u6KzppuFvgyAvvhq66YI66CpNW6xe8',
@@ -14,13 +20,38 @@ class App extends Component {
       storageBucket: 'react-native-auth-6f54c.appspot.com',
       messagingSenderId: '115664664453'
     });
+
+    firebase.auth().onAuthStateChanged((user) => {
+      this.setState({
+        isLoggedIn: user ? true : false
+      })
+    })
+  }
+
+  renderContent() {
+    switch (this.state.isLoggedIn) {
+      case true:
+        return (
+          <CardSection>
+            <Button
+              style={styles.buttonStyle}
+              onPress={() => firebase.auth().signOut()}>
+              <Text style={styles.textStyle}>Log Out</Text>
+            </Button>
+          </CardSection>
+        );
+      case false:
+        return <LoginForm />;
+      default:
+        return <Spinner />;
+    }
   }
 
   render() {
     return (
       <View style={styles.container}>
         <Header headerText='Authentication' />
-        <LoginForm />
+        {this.renderContent()}
       </View>
     );
   }
@@ -30,16 +61,14 @@ const styles = {
   container: {
     backgroundColor: '#F5FCFF',
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+  textStyle: {
+    alignSelf: 'center',
+    color: '#007aff',
+    fontSize: 16,
+    fontWeight: '600',
+    paddingTop: 10,
+    paddingBottom: 10
+  }
 };
 
 export default App;
