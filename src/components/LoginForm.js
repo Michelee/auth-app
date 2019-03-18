@@ -1,34 +1,98 @@
 import React, { Component } from 'react';
 import { Text } from 'react-native';
-import { Button, Card, CardSection, Input } from './common';
+import firebase from 'firebase';
+import {
+  Button,
+  Card,
+  CardSection,
+  Input,
+  Spinner
+} from './common';
 
 class LoginForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      email: ''
+      email: '',
+      password: '',
+      error: '',
+      loading: false
     };
+    this.onButtonPress = this.onButtonPress.bind(this);
+    this.onLoginSuccess = this.onLoginSuccess.bind(this);
+    this.onLoginFailed = this.onLoginFailed.bind(this);
+  }
+
+  onButtonPress() {
+    const { email, password } = this.state;
+
+    this.setState({
+      error: '',
+      loading: true
+    })
+
+    firebase.auth().signInWithEmailAndPassword(email, password)
+      .then(this.onLoginSuccess)
+      .catch(() => {
+        firebase.auth().createUserWithEmailAndPassword(email, password)
+          .then(this.onLoginSuccess)
+          .catch(this.onLoginFailed)
+      })
+  }
+
+  onLoginFailed() {
+    this.setState({
+      error: 'Authentication Failed.',
+      loading: false
+    })
+  }
+
+  onLoginSuccess() {
+    this.setState({
+      email: '',
+      password: '',
+      error: '',
+      loading: false
+    })
   }
 
   render() {
+    const { loading } = this.state;
     return (
       <Card>
         <CardSection>
           <Input
             placeholder="user@gmail.com"
             label="Email:"
-            onChangeText={email => this.setState({email})}
+            onChangeText={email => this.setState({ email })}
             value={this.state.email}
           />
         </CardSection>
 
         <CardSection>
+          <Input
+            secureTextEntry
+            placeholder="password"
+            label="Password:"
+            onChangeText={password => this.setState({ password })}
+            value={this.state.password}
+          />
         </CardSection>
-        
+
+        <Text style={styles.errorStyle}>
+          {this.state.error}
+        </Text>
+
         <CardSection>
-          <Button style={styles.buttonStyle}>
-            <Text style={styles.textStyle}>Log In</Text>
-          </Button>
+          {
+            loading
+              ? <Spinner size="small" />
+              : <Button
+              style={styles.buttonStyle}
+              onPress={this.onButtonPress}>
+              <Text style={styles.textStyle}>Log In</Text>
+            </Button>
+          }
         </CardSection>
       </Card>
     );
@@ -53,9 +117,10 @@ const styles = {
     paddingTop: 10,
     paddingBottom: 10
   },
-  inputStyle: {
-    height: 20,
-    width: 100
+  errorStyle: {
+    fontSize: 20,
+    alignSelf: 'center',
+    color: 'red'
   }
 };
 
